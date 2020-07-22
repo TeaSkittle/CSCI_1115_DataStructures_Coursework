@@ -6,7 +6,6 @@ Description: Chapter 19, exercise 9
 */
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class Exercise19_09 {
   public static void main(String[] args) {
