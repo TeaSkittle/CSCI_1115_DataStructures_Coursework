@@ -55,12 +55,7 @@ public class Exercise25_01 {
     // Recurive function, also uses a ternary operator to simplify the code
     public int height ( TreeNode<E> node ) {
       if ( node == null ) { return 0; }
-      int leftHeight = height( node.left );
-      int rightHeight = height( node.right );
-      // if ( leftHeight > rightHeight ) { return ( leftHeight + 1 ); }
-      // else { return ( rightHeight + 1 ); }
-      // Ternary version of the above commeneted out statements
-      return ( leftHeight > rightHeight ) ? ( leftHeight + 1 ) : ( rightHeight + 1 );
+      return ( height( node.left ) > height( node.right )) ? ( height( node.left ) + 1 ) : ( height( node.right ) + 1 );
     }
 
     /** 
