@@ -4,7 +4,7 @@ Date: 8-13-2020
 
 Description: Chapter 23, exercise 3
 
-
+Good overview of quicksort, for future reference:
 https://www.reddit.com/r/explainlikeimfive/comments/lb7w1/eli5_how_in_the_hell_does_quicksort_work/
 
 */
@@ -30,8 +30,8 @@ public class Exercise23_03 {
       System.out.println(list1[i] + " ");
     }
   }
-  //http://www.learntosolveit.com/java/GenericQuicksortComparable.html
-  public static <E extends Comparable<E>> void qSort( E[] list, int a, int b ){
+  // Quick sort with comparable
+  public static <E extends Comparable<E>> void qSort ( E[] list, int a, int b ) {
     if ( a < b ) {
       int i = a;
       int j = b;
@@ -39,7 +39,7 @@ public class Exercise23_03 {
       while ( i <= j ) {
         while ( list[ i ].compareTo( x ) < 0 ) i++;
         while ( x.compareTo( list[ j ]) < 0  ) j--;
-        if ( i <= j ){
+        if ( i <= j ) {
           E tmp = list[ i ];
           list[ i ] = list[ j ];
           list[ j ] = tmp;
@@ -50,15 +50,34 @@ public class Exercise23_03 {
     qSort( list, i, b );
     }
   }
-  //http://www.learntosolveit.com/java/GenericQuickSort.html
-  public static <E> void qSortCmp(E[] arr, Comparator<E> cmp, int a, int b) {
-    
-  }
-  public static <E extends Comparable<E>> void quickSort( E[] list ){
+  // Call the qSort & qSortCmp methods, needed extra arguements to make recursive
+  // Also this way the two methods below are the ones actually being called in main
+  public static <E extends Comparable<E>> void quickSort ( E[] list ) {
     qSort( list, 0, list.length -1 );
   }
-
- public static <E> void quickSort(E[] list, Comparator<? super E> comparator ){
+  public static <E> void quickSort ( E[] list, Comparator<? super E> comparator ) {
     qSortCmp( list, comparator, 0, list.length - 1 );
+  }
+  // Quick sort with comparator
+  // same as qSort above, execpt the while loops compare differently
+  public static <E> void qSortCmp ( E[] list, Comparator<E> cmp, int a, int b ) {
+    if ( a < b ) {
+      int i = a;
+      int j = b;
+      E x = list[( i + j ) / 2 ];
+      while ( i <= j ) {
+        // Comparator comes into play here
+        while ( cmp.compare( list[ i ], x ) < 0 ) i++;
+        while ( cmp.compare( x, list[ j ] ) < 0 ) j--;
+        if ( i <= j ){
+          E tmp = list[ i ];
+          list[ i ] = list[ j ];
+          list[ j ] = tmp;
+          i++;
+          j--;
+        }
+      } qSortCmp( list, cmp, a, j );
+    qSortCmp( list, cmp, i, b );
+    }   
   }
 }
