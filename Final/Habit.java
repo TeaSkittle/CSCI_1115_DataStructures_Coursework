@@ -7,13 +7,13 @@ import java.util.*;
 import java.io.*;
 import java.awt.print.*;
 import java.text.*;
+import javax.swing.plaf.*;
 
 class Habit {
 	private Date date = Calendar.getInstance().getTime();
-	private DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd"); 
+	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
 	private String strDate = dateFormat.format(date);
 	private String name;
-	private String filename = "Habits/" + name;
 	private HashMap<String, String> map = new HashMap<String, String>();
 	private String mapFile = "HabitMap";
 	private int[] array;
@@ -28,23 +28,33 @@ class Habit {
 	public Habit( String name ){
 		this.array = new int[ 66 ]; // defaulted with 0's
 		this.name = name;
-		map.put( name, strDate );
+		map.put( this.name, strDate );
 	}
 	
 	public void writeHabit(){
 		try {
-			BufferedWriter outputWriter = new BufferedWriter( new FileWriter( filename ));
+			BufferedWriter outputWriter = new BufferedWriter( new FileWriter( "Habits/" + name ));
 			outputWriter.write( Arrays.toString( array ));	
 			outputWriter.flush();
 			outputWriter.close();
+			writeMap();
 		} catch ( IOException ex ){
 			ex.printStackTrace();
 		}
 	}
-	// Change from void to int[]
+	public void removeHabit() {
+		File file = new File( "Habits/" + name );
+		if( file.delete() ){
+			map.remove( name );
+			System.out.println( "Habit removed" );
+		} else {
+			System.out.println( "Failed to remove habit" );
+		}
+	}
+	/* not being used
 	public int[] readHabit(){
 		try {
-			Scanner s = new Scanner( new File( filename ));
+			Scanner s = new Scanner( new File( "Habits/" + name ));
 			array = new int[ s.nextInt() ];
 			for( int i = 0; i < array.length; i++ ){
 				array[ i ] = s.nextInt();
@@ -53,17 +63,23 @@ class Habit {
 			ex.printStackTrace();
 		} return array;
 	}
+	*/
 	// use serialize
 	// https://www.tutorialspoint.com/java/java_serialization.htm
 	// https://www.javacodeexamples.com/write-hashmap-to-text-file-in-java-example/2353
+	// https://beginnersbook.com/2014/01/how-to-append-to-a-file-in-java/
 	public void writeMap(){
 		try {
-			BufferedWriter bf = new BufferedWriter( new FileWriter( mapFile ));
+			File file = new File( mapFile );
+			if( !file.exists() ){
+				file.createNewFile();
+			} FileWriter fw = new FileWriter( file, true );
+			BufferedWriter bw = new BufferedWriter( fw );
+			PrintWriter pw = new PrintWriter( bw );
 			for( Map.Entry<String, String> entry : map.entrySet() ){
-				bf.write( entry.getKey() + ":" + entry.getValue() );
-				bf.newLine();
-			} bf.flush();
-			bf.close();
+				pw.println( entry.getKey() + ":" + entry.getValue() );
+			} pw.flush();
+			pw.close();
 		} catch( IOException ex ){
 			ex.printStackTrace();
 		}
@@ -85,5 +101,15 @@ class Habit {
 		} catch( IOException ex ){
 			System.out.println( "No habits yet..." );
 		} return mapFileContents;
+	}
+	public void printMap() {
+		Map<String, String> mapFileContents = new HashMap<String, String>();
+		try { 
+			mapFileContents = readMap(); 
+		}  catch( FileNotFoundException ex ){ 
+			ex.printStackTrace(); 
+		} for( Map.Entry<String, String> entry : mapFileContents.entrySet() ) {
+			System.out.println( entry.getKey() + "\t\t" + entry.getValue().toString() );
+		} 
 	}
 }
