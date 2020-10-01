@@ -1,5 +1,9 @@
-// By: Travis Dowd
-// Date: 9-24-2020
+/*
+============================================================
+By: Travis Dowd
+Date: 9-24-2020
+============================================================
+*/
 
 package Final;
 
@@ -8,8 +12,17 @@ import java.io.*;
 import java.awt.print.*;
 import java.text.*;
 import javax.swing.plaf.*;
+import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 class Habit {
+	/*
+	============================================================
+	Class Basics
+		This section contains varaible declarations, contructors
+		and other general Java requirements for a Class file.
+	============================================================
+	*/
 	private Date date = Calendar.getInstance().getTime();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
 	private String strDate = dateFormat.format(date);
@@ -18,10 +31,11 @@ class Habit {
 	private String mapFile = "HabitMap";
 	private int[] array;
 	
-	/* Getters, not being used, made them in case needed
+	/* Getters, not being used
 	public Date getDate(){ return this.date; }
 	public String getName(){ return this.name; }
 	public int[] getArray(){ return this.array; }
+	public HashMap<String, String> getMap(){ return this.map ;}
 	*/
 	
 	public Habit(){}
@@ -30,32 +44,51 @@ class Habit {
 		this.name = name;
 		map.put( this.name, strDate );
 	}
-	
+	/*
+	===========================================================
+	Array Methods
+		This secion contains the methods affecting the arrays
+		and file operations of each habit
+	===========================================================
+	*/
 	public void writeHabit(){
 		try {
-			BufferedWriter outputWriter = new BufferedWriter( new FileWriter( "Habits/" + name ));
-			outputWriter.write( Arrays.toString( array ));	
-			outputWriter.flush();
-			outputWriter.close();
+			FileWriter writer = new FileWriter( "Habits/" + name );
+			for ( int i = 0; i < array.length; i++ ){
+				writer.write( array[ i ] + " " );
+			}
+			writer.close();
 			writeMap();
-		} catch ( IOException ex ){
+		} catch( IOException ex ){
 			ex.printStackTrace();
 		}
 	}
 	public void removeHabit() {
 		File file = new File( "Habits/" + name );
 		if( file.delete() ){
-			map.remove( name );
 			System.out.println( "Habit removed" );
+			try {
+				Map<String, String> mapFileContents = new HashMap<String, String>();
+				mapFileContents = readMap();
+				mapFileContents.remove( name );
+				File mFile = new File( mapFile );
+				FileWriter fw = new FileWriter( mFile, false );
+				BufferedWriter bw = new BufferedWriter( fw );
+				PrintWriter pw = new PrintWriter( bw );
+				for( Map.Entry<String, String> entry : mapFileContents.entrySet() ){
+					pw.println( entry.getKey() + ":" + entry.getValue() );
+				} pw.flush();
+				pw.close();
+			} catch( IOException ex ){
+				ex.printStackTrace();
+			}
 		} else {
 			System.out.println( "Failed to remove habit" );
 		}
 	}
-	/* not being used
-	public int[] readHabit(){
+	public int[] readHabit() throws FileNotFoundException {
 		try {
 			Scanner s = new Scanner( new File( "Habits/" + name ));
-			array = new int[ s.nextInt() ];
 			for( int i = 0; i < array.length; i++ ){
 				array[ i ] = s.nextInt();
 			}
@@ -63,11 +96,72 @@ class Habit {
 			ex.printStackTrace();
 		} return array;
 	}
+	public void printHabit(){
+		int[] fileArray;
+		try {
+			fileArray = readHabit();
+			System.out.print( "Started on: " );
+			printDate();
+			System.out.println( "\t\tWeek" );
+			int week = 1;
+			for( int i = 0; i < fileArray.length; i++ ){
+				if( i % 7 == 0  && i >= 7 ){ 
+					System.out.print( "\t" + week +"\n" );
+					week++;
+				} System.out.print( fileArray[ i ] + " " );
+				if( i == 65 ){
+					System.out.print( "\t\t10" );
+				}			
+			} System.out.print( "\n" );
+		} catch( FileNotFoundException ex ){
+			ex.printStackTrace();
+		}
+	}
+	// This is for the changeHabit method, returns the difference of two Dates
+	// https://stackoverflow.com/questions/20165564/calculating-days-between-two-dates-with-java
+	public static long getDifferenceDays(Date d1, Date d2) {
+		long diff = d2.getTime() - d1.getTime();
+		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+	}
+	// https://stackoverflow.com/questions/10118327/addition-and-subtraction-of-dates-in-java
+	public void changeHabit(){
+		int[] fileArray;
+		Date startDate;
+		String currentDate = dateFormat.format( date );
+		Map<String, String> mapFileContents = new HashMap<String, String>();
+		try {
+			// get start date from map
+			mapFileContents = readMap(); 
+			String habitStr = mapFileContents.get( name );
+			startDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( habitStr );
+			// Get today's date
+			Date today = dateFormat.parse( habitStr );
+			Calendar cal = GregorianCalendar.getInstance();
+			// Do math operations on date
+			cal.setTime( startDate );
+			long days = getDifferenceDays( startDate, today );
+			cal.add( GregorianCalendar.DATE, (int)days );
+			// 
+			// Testing
+			//
+			System.out.println( "result: " + dateFormat.format( cal.getTime() ));
+			// 
+			// change array, after tested futher
+			//
+			fileArray = readHabit();
+		} catch( FileNotFoundException ex ){
+			ex.printStackTrace();
+		} catch( ParseException e ){
+			e.printStackTrace();
+		}
+	}
+	/*
+	===========================================================
+	Map Methods
+		This sectios contains the methods affecting the hashmap
+		storage of the habits.
+	===========================================================
 	*/
-	// use serialize
-	// https://www.tutorialspoint.com/java/java_serialization.htm
-	// https://www.javacodeexamples.com/write-hashmap-to-text-file-in-java-example/2353
-	// https://beginnersbook.com/2014/01/how-to-append-to-a-file-in-java/
 	public void writeMap(){
 		try {
 			File file = new File( mapFile );
@@ -84,7 +178,6 @@ class Habit {
 			ex.printStackTrace();
 		}
 	}
-	
 	public Map<String, String> readMap() throws FileNotFoundException {
 		Map<String, String> mapFileContents = new HashMap<String, String>();
 		try {
@@ -101,7 +194,7 @@ class Habit {
 		} catch( IOException ex ){
 			System.out.println( "No habits yet..." );
 		} return mapFileContents;
-	}
+	}	
 	public void printMap() {
 		Map<String, String> mapFileContents = new HashMap<String, String>();
 		try { 
@@ -111,5 +204,20 @@ class Habit {
 		} for( Map.Entry<String, String> entry : mapFileContents.entrySet() ) {
 			System.out.println( entry.getKey() + "\t\t" + entry.getValue().toString() );
 		} 
+	}
+	public void printDate(){
+		Date habitDate;
+		Map<String, String> mapFileContents = new HashMap<String, String>();
+		try { 
+			mapFileContents = readMap(); 
+			String habitStr = mapFileContents.get( name );
+			habitDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( habitStr );
+			System.out.println( habitDate );
+			System.out.print( "\n" );
+		}  catch( FileNotFoundException ex ){ 
+			ex.printStackTrace(); 
+		} catch( ParseException e ){
+			e.printStackTrace();
+		}
 	}
 }
