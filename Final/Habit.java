@@ -148,8 +148,8 @@ class Habit {
 			// 
 			// Testing
 			//
-			System.out.println( "result: " + dateFormat.format( cal.getTime() ));
-			System.out.println( "days: " + days );
+			//System.out.println( "result: " + dateFormat.format( cal.getTime() ));
+			//System.out.println( "days: " + days );
 			// change array, after tested futher
 			fileArray = readHabit();
 			// Overwrite habit file with new array
