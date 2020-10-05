@@ -5,11 +5,6 @@ Date: 9-24-2020
 ============================================================
 */
 
-//
-// TODO: Test done/mark with older habits
-//
-
-
 package Final;
 
 import java.util.*;
@@ -17,7 +12,7 @@ import java.text.*;
 import java.io.*;
 import java.nio.file.*;
 
-class Final {
+class Main {
 	/*
 	===============================================================
 	Main Section
@@ -57,7 +52,8 @@ class Final {
 				System.out.println( "Exit   - Close out of 66 Days, don't forget those habits!" );
 				break;
 			case "list":
-				System.out.println( "Active Habits:\n");
+				System.out.println( "\nHabit\t\tStart Date" );
+				System.out.println( "--------------------------" );
 				habits.printMap();
 				break;
 			case "exit":

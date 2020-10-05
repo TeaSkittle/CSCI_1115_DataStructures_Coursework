@@ -135,7 +135,11 @@ class Habit {
 			String habitStr = mapFileContents.get( name );
 			startDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( habitStr );
 			// Get today's date
-			Date today = dateFormat.parse( habitStr );
+			//Date today = dateFormat.parse( habitStr );
+			Date today = new Date();
+			today.setHours(0); 
+			today.setMinutes(0); 
+			today.setSeconds(0);
 			Calendar cal = GregorianCalendar.getInstance();
 			// Do math operations on date
 			cal.setTime( startDate );
@@ -145,10 +149,22 @@ class Habit {
 			// Testing
 			//
 			System.out.println( "result: " + dateFormat.format( cal.getTime() ));
-			// 
+			System.out.println( "days: " + days );
 			// change array, after tested futher
-			//
 			fileArray = readHabit();
+			// Overwrite habit file with new array
+			try {
+				FileWriter writer = new FileWriter( "Habits/" + name );
+				for ( int i = 0; i < fileArray.length; i++ ){
+					if ( i != days ){
+						writer.write( fileArray[ i ] + " " );
+					} else {
+						writer.write( "1 " );
+					}
+				} writer.close();
+			} catch( IOException ex ){
+				ex.printStackTrace();
+			}
 		} catch( FileNotFoundException ex ){
 			ex.printStackTrace();
 		} catch( ParseException e ){
